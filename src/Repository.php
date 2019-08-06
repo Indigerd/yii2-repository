@@ -107,4 +107,14 @@ class Repository
         $data = $this->hydrator->extract($model);
         $this->queryBuilder->deleteOne($data);
     }
+
+    public function updateAll(array $data, array $conditions): int
+    {
+        return $this->queryBuilder->updateAll($data, $conditions);
+    }
+
+    public function deleteAll(array $conditions): int
+    {
+        return $this->queryBuilder->deleteAll($conditions);
+    }
 }

@@ -62,9 +62,14 @@ class SqlQueryBuilder extends AbstractQueryBuilder
             $conditions[$key] = $data[$key];
             unset($data[$key]);
         }
+        $this->updateAll($data, $conditions);
+    }
+
+    public function updateAll(array $data, array $conditions): int
+    {
         $command = $this->connection->createCommand();
         $command->update($this->collectionName, $data, $conditions);
-        $command->execute();
+        return $command->execute();
     }
 
     public function deleteOne(array $data): void
@@ -76,11 +81,15 @@ class SqlQueryBuilder extends AbstractQueryBuilder
                 throw new DeleteException($data, "Primary key $key not provided");
             }
             $conditions[$key] = $data[$key];
-            unset($data[$key]);
         }
+        $this->deleteAll($conditions);
+    }
+
+    public function deleteAll(array $conditions): int
+    {
         $command = $this->connection->createCommand();
         $command->delete($this->collectionName, $conditions);
-        $command->execute();
+        return $command->execute();
     }
 
     public function aggregate(string $expression, array $conditions): string
