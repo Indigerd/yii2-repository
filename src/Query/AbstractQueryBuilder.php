@@ -26,6 +26,10 @@ abstract class AbstractQueryBuilder implements QueryBuilderInterface
 
     public abstract function insert(array $data): ?array;
 
+    public abstract function updateOne(array $data): void;
+
+    public abstract function deleteOne(array $data): void;
+
     public abstract function aggregate(string $expression, array $conditions): string;
 
     public abstract function aggregateCount(string $field = '', array $conditions = []): string ;

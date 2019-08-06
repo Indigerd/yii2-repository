@@ -4,7 +4,7 @@ namespace Indigerd\Repository\Exception;
 
 use Throwable;
 
-class InsertException extends \Exception
+class UpdateException extends \Exception
 {
     protected $data;
 

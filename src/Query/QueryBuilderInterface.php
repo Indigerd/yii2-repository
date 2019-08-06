@@ -8,6 +8,10 @@ interface QueryBuilderInterface
 
     public function insert(array $data): ?array;
 
+    public function updateOne(array $data): void;
+
+    public function deleteOne(array $data): void;
+
     public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0): array;
 
     public function aggregate(string $expression, array $conditions): string;

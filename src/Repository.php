@@ -76,16 +76,35 @@ class Repository
         return $this->aggregateveMax($field, $conditions);
     }
 
-    public function insert(object $model)
+    protected function validateModelClass(object $model)
     {
         if (!($model instanceof $this->modelClass)) {
             throw new InvalidModelClassException('Invalid model class: ' . get_class($model) . '. Expected ' . $this->modelClass);
         }
+    }
+
+    public function insert(object $model)
+    {
+        $this->validateModelClass($model);
         $data = $this->hydrator->extract($model);
         $primaryKeys = $this->queryBuilder->insert($data);
         if (!\is_array($primaryKeys)) {
             throw new InsertException($data);
         }
         $this->hydrator->hydrate($model, $primaryKeys);
+    }
+
+    public function update(object $model)
+    {
+        $this->validateModelClass($model);
+        $data = $this->hydrator->extract($model);
+        $this->queryBuilder->updateOne($data);
+    }
+
+    public function delete(object $model)
+    {
+        $this->validateModelClass($model);
+        $data = $this->hydrator->extract($model);
+        $this->queryBuilder->deleteOne($data);
     }
 }
