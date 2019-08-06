@@ -1,0 +1,37 @@
+{
+  "name": "indigerd/yii2-repository",
+  "description": "Repositories for Yii2",
+  "keywords": ["library", "repository", "model", "hydrator", "ddd"],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alexander Stepanenko",
+      "email": "alex.stepanenko@gmail.com"
+    }
+  ],
+  "repositories":[
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
+  "require": {
+    "php": ">=7.2.0",
+    "indigerd/hydrator": "*",
+    "yiisoft/yii2": "^2.0.13"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "@stable"
+  },
+  "autoload": {
+    "psr-4": {
+      "Indigerd\\Repository\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Indigerd\\Repository\\Test\\": "tests"
+    }
+  }
+}
