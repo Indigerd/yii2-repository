@@ -16,7 +16,7 @@ interface QueryBuilderInterface
 
     public function deleteAll(array $conditions): int;
 
-    public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0): array;
+    public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0, array $relations = []): array;
 
     public function aggregate(string $expression, array $conditions): string;
 

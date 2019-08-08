@@ -57,19 +57,36 @@ class SqlQueryBuilder extends AbstractQueryBuilder
         return $query->one($this->connection);
     }
 
-    public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0): array
+    public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0, array $relations = []): array
     {
+        $select = [$this->collectionName . '*'];
+        foreach ($relations as $relation) {
+            /** @var Relation $relation */
+            $columns = $this->getSchema($relation->getRelatedCollection())->getColumnNames();
+            foreach ($columns as $column) {
+                $select[] = $relation->getRelatedCollection() . '.' . $column . ' as ' . $relation->getRelatedCollection() . '_relation_' . $column;
+            }
+        }
         /** @var Query $query */
         $query = $this->createQuery();
         $query
+            ->select(\implode(',', $select))
             ->from($this->collectionName)
             ->where($conditions);
+
         if ($limit > 0) {
             $query->limit($limit)->offset($offset);
         }
+
         if (!empty($order)) {
             $query->orderBy($order);
         }
+
+        foreach ($relations as $relation) {
+            $joinCondition = $this->collectionName . '.' . $relation->getField() . '=' . $relation->getRelatedCollection() . '.' . $relation->getRelatedField();
+            $query->join($relation->getRelationType(), $relation->getRelatedCollection(), $joinCondition);
+        }
+
         return $query->all($this->connection);
     }
 

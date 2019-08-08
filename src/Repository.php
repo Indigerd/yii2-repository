@@ -93,11 +93,21 @@ class Repository
         return $result;
     }
 
-    public function findAll(array $conditions = [], array $order = [], int $limit = 0, int $offset = 0): array
+    public function findAll(array $conditions = [], array $order = [], int $limit = 0, int $offset = 0, array $with = []): array
     {
         $result = [];
+        $relations = [];
+        foreach ($with as $relationName) {
+            $relations[$relationName] = $this->getRelation($relationName);
+        }
+        if (!empty($relations)) {
+            $this->applyRelationStrategies($relations);
+        }
         $data = $this->queryBuilder->queryAll($conditions, $order, $limit, $offset);
         foreach ($data as $row) {
+            if (!empty($relations)) {
+                $row = $this->normalizeResultSet($row, $relations);
+            }
             $result[] = $this->hydrator->hydrate($this->modelClass, $row);
         }
         return $result;
