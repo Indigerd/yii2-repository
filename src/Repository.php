@@ -3,10 +3,13 @@
 namespace Indigerd\Repository;
 
 use Indigerd\Hydrator\Hydrator;
+use Indigerd\Hydrator\Strategy\ObjectStrategy;
 use Indigerd\Repository\Config\ConfigValueInterface;
 use Indigerd\Repository\Exception\InsertException;
 use Indigerd\Repository\Exception\InvalidModelClassException;
 use Indigerd\Repository\Query\QueryBuilderInterface;
+use Indigerd\Repository\Relation\Relation;
+use Indigerd\Repository\Relation\RelationCollection;
 
 class Repository
 {
@@ -16,21 +19,75 @@ class Repository
 
     protected $modelClass;
 
+    protected $relationCollection;
+
     public function __construct(
         QueryBuilderInterface $queryBuilder,
         Hydrator $hydrator,
-        ConfigValueInterface $modelClass
+        ConfigValueInterface $modelClass,
+        RelationCollection $relationCollection = null
     ) {
         $this->queryBuilder = $queryBuilder;
         $this->hydrator = $hydrator;
         $this->modelClass = $modelClass->getValue();
+        $this->relationCollection = $relationCollection;
     }
 
-    public function findOne(array $conditions = []): ?object
+    protected function getRelation($name): Relation
+    {
+        if (\is_null($this->relationCollection)) {
+            throw new \InvalidArgumentException("Relation $name do not exist");
+        }
+        $relation = $this->relationCollection->getRelationByProperty($name);
+        if (!($relation instanceof Relation)) {
+            throw new \InvalidArgumentException("Relation $name do not exist");
+        }
+        return $relation;
+    }
+
+    protected function normalizeResultSet(array $data, array $relations): array
+    {
+        /**
+         * @var string $property
+         * @var Relation $relation
+         */
+        foreach ($relations as $property => $relation) {
+            $relationData = [];
+            foreach ($data as $field => $value) {
+                if (\strpos($field, $relation->getRelatedCollection() . '_relation_') === 0) {
+                    $fieldName = \str_replace($relation->getRelatedCollection() . '_relation_', '', $field);
+                    $relationData[$fieldName] = $value;
+                }
+            }
+            $data[$property] = $relationData;
+        }
+        return $data;
+    }
+
+    protected function applyRelationStrategies(array $relations)
+    {
+        /**
+         * @var string $property
+         * @var Relation $relation
+         */
+        foreach ($relations as $property => $relation) {
+            $this->hydrator->addStrategy($property, new ObjectStrategy($this->hydrator, $relation->getRelatedModel()));
+        }
+    }
+
+    public function findOne(array $conditions = [], array $with = []): ?object
     {
         $result = null;
-        $data = $this->queryBuilder->queryOne($conditions);
+        $relations = [];
+        foreach ($with as $relationName) {
+            $relations[$relationName] = $this->getRelation($relationName);
+        }
+        $data = $this->queryBuilder->queryOne($conditions, $relations);
         if (\is_array($data)) {
+            if (!empty($relations)) {
+                $data = $this->normalizeResultSet($data, $relations);
+                $this->applyRelationStrategies($relations);
+            }
             $result = $this->hydrator->hydrate($this->modelClass, $data);
         }
         return $result;

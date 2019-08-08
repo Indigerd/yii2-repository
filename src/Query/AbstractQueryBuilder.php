@@ -20,7 +20,7 @@ abstract class AbstractQueryBuilder implements QueryBuilderInterface
 
     protected abstract function createQuery(): QueryInterface;
 
-    public abstract function queryOne(array $conditions): ?array;
+    public abstract function queryOne(array $conditions, array $relations = []): ?array;
 
     public abstract function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0): array ;
 

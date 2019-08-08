@@ -4,7 +4,7 @@ namespace Indigerd\Repository\Query;
 
 interface QueryBuilderInterface
 {
-    public function queryOne(array $conditions): ?array;
+    public function queryOne(array $conditions, array $relations = []): ?array;
 
     public function insert(array $data): ?array;
 

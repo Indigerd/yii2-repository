@@ -7,27 +7,54 @@ use yii\db\QueryInterface;
 use yii\db\Expression;
 use Indigerd\Repository\Exception\UpdateException;
 use Indigerd\Repository\Exception\DeleteException;
+use Indigerd\Repository\Relation\Relation;
+use yii\db\TableSchema;
 
 class SqlQueryBuilder extends AbstractQueryBuilder
 {
+    protected $schemas = [];
+
     protected function createQuery(): QueryInterface
     {
         return new Query();
     }
 
-    protected function getPrimaryKeys(): array
+    protected function getSchema($collectionName): TableSchema
     {
-        return $this->connection->getSchema()->getTableSchema($this->collectionName)->primaryKey;
+        if (!isset($this->schemas[$collectionName])) {
+            $this->schemas[$collectionName] = $this->connection->getSchema()->getTableSchema($collectionName);
+        }
+        return $this->schemas[$collectionName];
     }
 
-    public function queryOne(array $conditions): ?array
+    protected function getPrimaryKeys(): array
     {
+        return $this->getSchema($this->collectionName)->primaryKey;
+    }
+
+    public function queryOne(array $conditions, array $relations = []): ?array
+    {
+        $select = [$this->collectionName . '*'];
+        foreach ($relations as $relation) {
+            /** @var Relation $relation */
+            $columns = $this->getSchema($relation->getRelatedCollection())->getColumnNames();
+            foreach ($columns as $column) {
+                $select[] = $relation->getRelatedCollection() . '.' . $column . ' as ' . $relation->getRelatedCollection() . '_relation_' . $column;
+            }
+        }
         /** @var Query $query */
         $query = $this->createQuery();
-        return $query
+        $query
+            ->select(\implode(',', $select))
             ->from($this->collectionName)
-            ->where($conditions)
-            ->one($this->connection);
+            ->where($conditions);
+
+        foreach ($relations as $relation) {
+            $joinCondition = $this->collectionName . '.' . $relation->getField() . '=' . $relation->getRelatedCollection() . '.' . $relation->getRelatedField();
+            $query->join($relation->getRelationType(), $relation->getRelatedCollection(), $joinCondition);
+        }
+
+        return $query->one($this->connection);
     }
 
     public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0): array
