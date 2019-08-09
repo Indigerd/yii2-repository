@@ -120,27 +120,27 @@ class Repository
 
     public function aggregateCount(string $field = '', array $conditions = [])
     {
-        return $this->aggregateCount($field, $conditions);
+        return $this->queryBuilder->aggregateCount($field, $conditions);
     }
 
     public function aggregateSum(string $field, array $conditions)
     {
-        return $this->aggregateSum($field, $conditions);
+        return $this->queryBuilder->aggregateSum($field, $conditions);
     }
 
     public function aggregateAverage(string $field, array $conditions)
     {
-        return $this->aggregateAverage($field, $conditions);
+        return $this->queryBuilder->aggregateAverage($field, $conditions);
     }
 
     public function aggregateMin(string $field, array $conditions)
     {
-        return $this->aggregateMin($field, $conditions);
+        return $this->queryBuilder->aggregateMin($field, $conditions);
     }
 
     public function aggregateveMax(string $field, array $conditions)
     {
-        return $this->aggregateveMax($field, $conditions);
+        return $this->queryBuilder->aggregateMax($field, $conditions);
     }
 
     protected function validateModelClass(object $model)
