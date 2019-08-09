@@ -103,7 +103,7 @@ class Repository
         if (!empty($relations)) {
             $this->applyRelationStrategies($relations);
         }
-        $data = $this->queryBuilder->queryAll($conditions, $order, $limit, $offset);
+        $data = $this->queryBuilder->queryAll($conditions, $order, $limit, $offset, $relations);
         foreach ($data as $row) {
             if (!empty($relations)) {
                 $row = $this->normalizeResultSet($row, $relations);

@@ -34,7 +34,7 @@ class SqlQueryBuilder extends AbstractQueryBuilder
 
     public function queryOne(array $conditions, array $relations = []): ?array
     {
-        $select = [$this->collectionName . '*'];
+        $select = [$this->collectionName . '.*'];
         foreach ($relations as $relation) {
             /** @var Relation $relation */
             $columns = $this->getSchema($relation->getRelatedCollection())->getColumnNames();
@@ -51,7 +51,7 @@ class SqlQueryBuilder extends AbstractQueryBuilder
 
         foreach ($relations as $relation) {
             $joinCondition = $this->collectionName . '.' . $relation->getField() . '=' . $relation->getRelatedCollection() . '.' . $relation->getRelatedField();
-            $query->join($relation->getRelationType(), $relation->getRelatedCollection(), $joinCondition);
+            $query->join($relation->getRelationType() . ' join', $relation->getRelatedCollection(), $joinCondition);
         }
 
         return $query->one($this->connection);
@@ -59,7 +59,7 @@ class SqlQueryBuilder extends AbstractQueryBuilder
 
     public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0, array $relations = []): array
     {
-        $select = [$this->collectionName . '*'];
+        $select = [$this->collectionName . '.*'];
         foreach ($relations as $relation) {
             /** @var Relation $relation */
             $columns = $this->getSchema($relation->getRelatedCollection())->getColumnNames();
@@ -84,7 +84,7 @@ class SqlQueryBuilder extends AbstractQueryBuilder
 
         foreach ($relations as $relation) {
             $joinCondition = $this->collectionName . '.' . $relation->getField() . '=' . $relation->getRelatedCollection() . '.' . $relation->getRelatedField();
-            $query->join($relation->getRelationType(), $relation->getRelatedCollection(), $joinCondition);
+            $query->join($relation->getRelationType() . ' join', $relation->getRelatedCollection(), $joinCondition);
         }
 
         return $query->all($this->connection);

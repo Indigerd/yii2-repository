@@ -31,7 +31,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Indigerd\\Repository\\Test\\": "tests"
+      "Indigerd\\Repository\\Test\\": "tests",
+      "Indigerd\\Repository\\Example\\": "example"
     }
   }
 }

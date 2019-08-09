@@ -51,7 +51,7 @@ class Relation
 
     public function getRelatedCollection(): string
     {
-        return $this->getRelatedCollection();
+        return $this->relatedCollection;
     }
 
     public function getRelatedModel(): string
