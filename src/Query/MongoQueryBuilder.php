@@ -2,6 +2,7 @@
 
 namespace Indigerd\Repository\Query;
 
+use MongoDB\BSON\ObjectId;
 use yii\mongodb\Connection;
 use yii\mongodb\Query;
 use yii\db\QueryInterface;
@@ -34,6 +35,7 @@ class MongoQueryBuilder extends AbstractQueryBuilder
 
     public function insert(array $data): ?array
     {
+        $data['_id'] = new ObjectId();
         /** @var \yii\mongodb\Connection $connection */
         $connection = $this->connection;
         $newId = $connection->getCollection($this->collectionName)->insert($data);
@@ -98,41 +100,41 @@ class MongoQueryBuilder extends AbstractQueryBuilder
     {
         /** @var Query $query */
         $query = $this->createQuery();
-        return (string)$query->select($expression)->where($conditions)->scalar($this->connection);
+        return (string)$query->from($this->collectionName)->select($expression)->where($conditions)->scalar($this->connection);
     }
 
     public function aggregateCount(string $field = '', array $conditions = []): string
     {
         /** @var Query $query */
         $query = $this->createQuery();
-        return (string)$query->where($conditions)->count('*', $this->connection);
+        return (string)$query->from($this->collectionName)->where($conditions)->count('*', $this->connection);
     }
 
     public function aggregateSum(string $field, array $conditions = []): string
     {
         /** @var Query $query */
         $query = $this->createQuery();
-        return (string)$query->where($conditions)->sum($field, $this->connection);
+        return (string)$query->from($this->collectionName)->where($conditions)->sum($field, $this->connection);
     }
 
     public function aggregateAverage(string $field, array $conditions = []): string
     {
         /** @var Query $query */
         $query = $this->createQuery();
-        return (string)$query->where($conditions)->average($field, $this->connection);
+        return (string)$query->from($this->collectionName)->where($conditions)->average($field, $this->connection);
     }
 
     public function aggregateMin(string $field, array $conditions = []): string
     {
         /** @var Query $query */
         $query = $this->createQuery();
-        return (string)$query->where($conditions)->min($field, $this->connection);
+        return (string)$query->from($this->collectionName)->where($conditions)->min($field, $this->connection);
     }
 
     public function aggregateMax(string $field, array $conditions = []): string
     {
         /** @var Query $query */
         $query = $this->createQuery();
-        return (string)$query->where($conditions)->max($field, $this->connection);
+        return (string)$query->from($this->collectionName)->where($conditions)->max($field, $this->connection);
     }
 }
