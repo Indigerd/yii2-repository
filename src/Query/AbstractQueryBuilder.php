@@ -2,7 +2,6 @@
 
 namespace Indigerd\Repository\Query;
 
-use yii\db\Connection;
 use yii\db\QueryInterface;
 use Indigerd\Repository\Config\ConfigValueInterface;
 
@@ -12,7 +11,7 @@ abstract class AbstractQueryBuilder implements QueryBuilderInterface
 
     protected $collectionName;
 
-    public function __construct(Connection $connection, ConfigValueInterface $collectionName)
+    public function __construct($connection, ConfigValueInterface $collectionName)
     {
         $this->connection = $connection;
         $this->collectionName = $collectionName->getValue();;

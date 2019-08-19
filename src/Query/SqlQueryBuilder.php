@@ -2,9 +2,11 @@
 
 namespace Indigerd\Repository\Query;
 
+use yii\db\Connection;
 use yii\db\Query;
 use yii\db\QueryInterface;
 use yii\db\Expression;
+use Indigerd\Repository\Config\ConfigValueInterface;
 use Indigerd\Repository\Exception\UpdateException;
 use Indigerd\Repository\Exception\DeleteException;
 use Indigerd\Repository\Relation\Relation;
@@ -13,6 +15,11 @@ use yii\db\TableSchema;
 class SqlQueryBuilder extends AbstractQueryBuilder
 {
     protected $schemas = [];
+
+    public function __construct(Connection $connection, ConfigValueInterface $collectionName)
+    {
+        parent::__construct($connection, $collectionName);
+    }
 
     protected function createQuery(): QueryInterface
     {

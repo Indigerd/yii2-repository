@@ -2,13 +2,20 @@
 
 namespace Indigerd\Repository\Query;
 
+use yii\mongodb\Connection;
 use yii\mongodb\Query;
 use yii\db\QueryInterface;
+use Indigerd\Repository\Config\ConfigValueInterface;
 use Indigerd\Repository\Exception\DeleteException;
 use Indigerd\Repository\Exception\UpdateException;
 
 class MongoQueryBuilder extends AbstractQueryBuilder
 {
+    public function __construct(Connection $connection, ConfigValueInterface $collectionName)
+    {
+        parent::__construct($connection, $collectionName);
+    }
+
     protected function createQuery(): QueryInterface
     {
         return new Query();
