@@ -29,8 +29,8 @@ class MongoQueryBuilder extends AbstractQueryBuilder
         $query
             ->from($this->collectionName)
             ->where($conditions);
-
-        return $query->one($this->connection);
+        $result = $query->one($this->connection);
+        return $result ? $result : null;
     }
 
     public function insert(array $data): ?array
