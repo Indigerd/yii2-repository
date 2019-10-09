@@ -74,7 +74,7 @@ class MongoQueryBuilder extends AbstractQueryBuilder
     {
         /** @var \yii\mongodb\Connection $connection */
         $connection = $this->connection;
-        $connection->getCollection($this->collectionName)->remove($conditions);
+        return $connection->getCollection($this->collectionName)->remove($conditions);
     }
 
     public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0, array $relations = []): array
