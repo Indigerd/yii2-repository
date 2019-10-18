@@ -11,7 +11,7 @@ use Indigerd\Repository\Query\QueryBuilderInterface;
 use Indigerd\Repository\Relation\Relation;
 use Indigerd\Repository\Relation\RelationCollection;
 
-class Repository
+class Repository implements RepositoryInterface
 {
     protected $queryBuilder;
 

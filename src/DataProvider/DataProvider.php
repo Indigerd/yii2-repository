@@ -2,7 +2,7 @@
 
 namespace Indigerd\Repository\DataProvider;
 
-use Indigerd\Repository\Repository;
+use Indigerd\Repository\RepositoryInterface;
 use yii\data\BaseDataProvider;
 
 class DataProvider extends BaseDataProvider
@@ -13,7 +13,7 @@ class DataProvider extends BaseDataProvider
 
     protected $with;
 
-    public function __construct(Repository $repository, array $conditions = [], $with = [], array $config = [])
+    public function __construct(RepositoryInterface $repository, array $conditions = [], $with = [], array $config = [])
     {
         $this->repository = $repository;
         $this->conditions = $conditions;
