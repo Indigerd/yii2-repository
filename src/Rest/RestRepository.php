@@ -50,7 +50,7 @@ class RestRepository
 
     public function findAll(array $params = [], string $token = ''): Collection
     {
-        $url = \rtrim($this->endpoint, '/') . '/';
+        $url = \rtrim($this->endpoint, '/');
         $this->addToken($token);
         $response = $this->request('get', $url, $params);
         $this->collectionHydrator->hydrate($this->collectionClass, ['items' => $response['body']] + $this->generateHeaders($response['headers']));
