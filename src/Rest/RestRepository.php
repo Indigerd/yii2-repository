@@ -50,10 +50,10 @@ class RestRepository
 
     public function findAll(array $params = [], string $token = ''): Collection
     {
-        $url = \rtrim($this->endpoint, '/') . '/';
+        $url = \rtrim($this->endpoint, '/');
         $this->addToken($token);
         $response = $this->request('get', $url, $params);
-        $this->collectionHydrator->hydrate($this->collectionClass, ['items' => $response['body']] + $this->generateHeaders($response['headers']));
+        return $this->collectionHydrator->hydrate($this->collectionClass, ['items' => $response['body']] + $this->generateHeaders($response['headers']));
     }
 
     protected function addHeader(string $header, string $value)
@@ -100,6 +100,22 @@ class RestRepository
             'headers' => $userRequest->getHeaders(),
             'body' => $data
         ];
+    }
+    
+     /**
+     * @param array $response
+     * @return array
+     */
+    public function generateHeaders(array $response): array
+    {
+        $headers = [];
+        foreach ($this->headers as $header => $value) {
+            if (isset($response[$header][0])) {
+                $headers[$value] = $response[$header];
+            }
+        }
+
+        return $headers;
     }
 
 }
