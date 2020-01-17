@@ -61,7 +61,8 @@ class SqlQueryBuilder extends AbstractQueryBuilder
             $query->join($relation->getRelationType() . ' join', $relation->getRelatedCollection(), $joinCondition);
         }
 
-        return $query->one($this->connection);
+        $res = $query->one($this->connection);
+        return $res ? $res : null;
     }
 
     public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0, array $relations = []): array
