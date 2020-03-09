@@ -1,19 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Indigerd\Repository;
 
 use Indigerd\Hydrator\Hydrator;
 use Indigerd\Hydrator\Strategy\ObjectStrategy;
-use Indigerd\Repository\Config\ConfigValueInterface;
 use Indigerd\Repository\Exception\InsertException;
 use Indigerd\Repository\Exception\InvalidModelClassException;
-use Indigerd\Repository\Query\QueryBuilderInterface;
+use Indigerd\Repository\Exception\NotFoundException;
 use Indigerd\Repository\Relation\Relation;
 use Indigerd\Repository\Relation\RelationCollection;
+use Indigerd\Repository\TableGateway\TableGatewayInterface;
 
-class Repository
+class Repository implements RepositoryInterface
 {
-    protected $queryBuilder;
+    protected $tableGateway;
 
     protected $hydrator;
 
@@ -22,14 +22,14 @@ class Repository
     protected $relationCollection;
 
     public function __construct(
-        QueryBuilderInterface $queryBuilder,
+        TableGatewayInterface $tableGateway,
         Hydrator $hydrator,
-        ConfigValueInterface $modelClass,
+        string $modelClass,
         RelationCollection $relationCollection = null
     ) {
-        $this->queryBuilder = $queryBuilder;
+        $this->tableGateway = $tableGateway;
         $this->hydrator = $hydrator;
-        $this->modelClass = $modelClass->getValue();
+        $this->modelClass = $modelClass;
         $this->relationCollection = $relationCollection;
     }
 
@@ -75,21 +75,22 @@ class Repository
         }
     }
 
-    public function findOne(array $conditions = [], array $with = []): ?object
+    public function findOne(array $conditions = [], array $with = []): object
     {
         $result = null;
         $relations = [];
         foreach ($with as $relationName) {
             $relations[$relationName] = $this->getRelation($relationName);
         }
-        $data = $this->queryBuilder->queryOne($conditions, $relations);
-        if (\is_array($data)) {
-            if (!empty($relations)) {
-                $data = $this->normalizeResultSet($data, $relations);
-                $this->applyRelationStrategies($relations);
-            }
-            $result = $this->hydrator->hydrate($this->modelClass, $data);
+        $data = $this->tableGateway->queryOne($conditions, $relations);
+        if (!\is_array($data)) {
+            throw new NotFoundException();
         }
+        if (!empty($relations)) {
+            $data = $this->normalizeResultSet($data, $relations);
+            $this->applyRelationStrategies($relations);
+        }
+        $result = $this->hydrator->hydrate($this->modelClass, $data);
         return $result;
     }
 
@@ -103,7 +104,7 @@ class Repository
         if (!empty($relations)) {
             $this->applyRelationStrategies($relations);
         }
-        $data = $this->queryBuilder->queryAll($conditions, $order, $limit, $offset, $relations);
+        $data = $this->tableGateway->queryAll($conditions, $order, $limit, $offset, $relations);
         foreach ($data as $row) {
             if (!empty($relations)) {
                 $row = $this->normalizeResultSet($row, $relations);
@@ -113,34 +114,34 @@ class Repository
         return $result;
     }
 
-    public function aggregate(string $expression, array $conditions)
+    public function aggregate(string $expression, array $conditions): string
     {
-        return $this->queryBuilder->aggregate($expression, $conditions);
+        return $this->tableGateway->aggregate($expression, $conditions);
     }
 
-    public function aggregateCount(string $field = '', array $conditions = [])
+    public function aggregateCount(string $field = '', array $conditions = []): string
     {
-        return $this->queryBuilder->aggregateCount($field, $conditions);
+        return $this->tableGateway->aggregateCount($field, $conditions);
     }
 
-    public function aggregateSum(string $field, array $conditions)
+    public function aggregateSum(string $field, array $conditions): string
     {
-        return $this->queryBuilder->aggregateSum($field, $conditions);
+        return $this->tableGateway->aggregateSum($field, $conditions);
     }
 
-    public function aggregateAverage(string $field, array $conditions)
+    public function aggregateAverage(string $field, array $conditions): string
     {
-        return $this->queryBuilder->aggregateAverage($field, $conditions);
+        return $this->tableGateway->aggregateAverage($field, $conditions);
     }
 
-    public function aggregateMin(string $field, array $conditions)
+    public function aggregateMin(string $field, array $conditions): string
     {
-        return $this->queryBuilder->aggregateMin($field, $conditions);
+        return $this->tableGateway->aggregateMin($field, $conditions);
     }
 
-    public function aggregateveMax(string $field, array $conditions)
+    public function aggregateveMax(string $field, array $conditions): string
     {
-        return $this->queryBuilder->aggregateMax($field, $conditions);
+        return $this->tableGateway->aggregateMax($field, $conditions);
     }
 
     protected function validateModelClass(object $model)
@@ -150,38 +151,56 @@ class Repository
         }
     }
 
-    public function insert(object $model)
+    public function insert(object $model): void
     {
         $this->validateModelClass($model);
         $data = $this->hydrator->extract($model);
-        $primaryKeys = $this->queryBuilder->insert($data);
+        $primaryKeys = $this->tableGateway->insert($data);
         if (!\is_array($primaryKeys)) {
             throw new InsertException($data);
         }
         $this->hydrator->hydrate($model, $primaryKeys);
     }
 
-    public function update(object $model)
+    public function update(object $model): void
     {
         $this->validateModelClass($model);
         $data = $this->hydrator->extract($model);
-        $this->queryBuilder->updateOne($data);
+        $this->tableGateway->updateOne($data);
     }
 
-    public function delete(object $model)
+    public function delete(object $model): void
     {
         $this->validateModelClass($model);
         $data = $this->hydrator->extract($model);
-        $this->queryBuilder->deleteOne($data);
+        $this->tableGateway->deleteOne($data);
     }
 
     public function updateAll(array $data, array $conditions): int
     {
-        return $this->queryBuilder->updateAll($data, $conditions);
+        return $this->tableGateway->updateAll($data, $conditions);
     }
 
     public function deleteAll(array $conditions): int
     {
-        return $this->queryBuilder->deleteAll($conditions);
+        return $this->tableGateway->deleteAll($conditions);
+    }
+
+    /**
+     * @param array $data
+     * @return object
+     */
+    public function create(array $data= []): object
+    {
+        return $this->hydrator->hydrate($this->modelClass, $data);
+    }
+
+    /**
+     * @param object $entity
+     * @param array $data
+     */
+    public function populate(object $entity, array $data): void
+    {
+        $this->hydrator->hydrate($this->modelClass, $data);
     }
 }

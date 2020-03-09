@@ -1,31 +1,33 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Indigerd\Repository\Query;
+namespace Indigerd\Repository\TableGateway;
 
+use Indigerd\Repository\Query\MongoQueryFactory;
 use MongoDB\BSON\ObjectId;
 use yii\mongodb\Connection;
 use yii\mongodb\Query;
-use yii\db\QueryInterface;
-use Indigerd\Repository\Config\ConfigValueInterface;
 use Indigerd\Repository\Exception\DeleteException;
 use Indigerd\Repository\Exception\UpdateException;
 
-class MongoQueryBuilder extends AbstractQueryBuilder
+class MongoTableGateway implements TableGatewayInterface
 {
-    public function __construct(Connection $connection, ConfigValueInterface $collectionName)
-    {
-        parent::__construct($connection, $collectionName);
-    }
+    protected $connection;
 
-    protected function createQuery(): QueryInterface
+    protected $queryFactory;
+
+    protected $collectionName;
+
+    public function __construct(Connection $connection, MongoQueryFactory $queryFactory, string $collectionName)
     {
-        return new Query();
+        $this->connection = $connection;
+        $this->queryFactory = $queryFactory;
+        $this->collectionName = $collectionName;
     }
 
     public function queryOne(array $conditions, array $relations = []): ?array
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         $query
             ->from($this->collectionName)
             ->where($conditions);
@@ -80,7 +82,7 @@ class MongoQueryBuilder extends AbstractQueryBuilder
     public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0, array $relations = []): array
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         $query
             ->from($this->collectionName)
             ->where($conditions);
@@ -99,42 +101,42 @@ class MongoQueryBuilder extends AbstractQueryBuilder
     public function aggregate(string $expression, array $conditions): string
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->select($expression)->where($conditions)->scalar($this->connection);
     }
 
     public function aggregateCount(string $field = '', array $conditions = []): string
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->count('*', $this->connection);
     }
 
     public function aggregateSum(string $field, array $conditions = []): string
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->sum($field, $this->connection);
     }
 
     public function aggregateAverage(string $field, array $conditions = []): string
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->average($field, $this->connection);
     }
 
     public function aggregateMin(string $field, array $conditions = []): string
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->min($field, $this->connection);
     }
 
     public function aggregateMax(string $field, array $conditions = []): string
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->max($field, $this->connection);
     }
 }

@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Indigerd\Repository\Relation;
-
-use Indigerd\Repository\Config\ConfigValueInterface;
 
 class Relation
 {
@@ -19,19 +17,19 @@ class Relation
     protected $relationType;
 
     public function __construct(
-        ConfigValueInterface $property,
-        ConfigValueInterface $field,
-        ConfigValueInterface $relatedField,
-        ConfigValueInterface $relatedCollection,
-        ConfigValueInterface $relatedModel,
-        ConfigValueInterface $relationType
+        string $property,
+        string $field,
+        string $relatedField,
+        string $relatedCollection,
+        string $relatedModel,
+        string $relationType
     ) {
-        $this->property = $property->getValue();
-        $this->field = $field->getValue();
-        $this->relatedField = $relatedField->getValue();
-        $this->relatedCollection = $relatedCollection->getValue();
-        $this->relatedModel = $relatedModel->getValue();
-        $this->relationType = $relationType->getValue();
+        $this->property = $property;
+        $this->field = $field;
+        $this->relatedField = $relatedField;
+        $this->relatedCollection = $relatedCollection;
+        $this->relatedModel = $relatedModel;
+        $this->relationType = $relationType;
     }
 
     public function getProperty(): string

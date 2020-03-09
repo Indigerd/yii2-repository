@@ -16,7 +16,7 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;port=3306;dbname=articles',
+            'dsn' => 'mysql:host=localhost;port=3306;dbname=repo',
             'username' => 'root',
             'password' => 'root',
             'charset' => 'utf8',

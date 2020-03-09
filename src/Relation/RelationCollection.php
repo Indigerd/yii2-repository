@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Indigerd\Repository\Relation;
 
@@ -11,7 +11,7 @@ class RelationCollection
         $this->relations = $relations;
     }
 
-    public function addRelation(Relation $relation)
+    public function addRelation(Relation $relation): void
     {
         $this->relations[] = $relation;
     }

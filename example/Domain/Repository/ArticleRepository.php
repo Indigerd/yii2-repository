@@ -1,21 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Indigerd\Repository\Example\Domain\Repository;
 
 use Indigerd\Hydrator\Hydrator;
-use Indigerd\Repository\Example\Domain\Query\ArticleQueryBuilder;
 use Indigerd\Repository\Repository;
 use Indigerd\Repository\Example\Domain\Relation\ArticleRelationCollection;
-use Indigerd\Repository\Example\Domain\Repository\ConfigValue\ArticleModelConfigValue;
+use Indigerd\Repository\Example\Domain\TableGateway\ArticleTableGateway;
 
 class ArticleRepository extends Repository
 {
     public function __construct(
-        ArticleQueryBuilder $queryBuilder,
+        ArticleTableGateway $tableGateway,
         Hydrator $hydrator,
-        ArticleModelConfigValue $modelClass,
+        string $modelClass,
         ArticleRelationCollection $relationCollection
     ) {
-        parent::__construct($queryBuilder, $hydrator, $modelClass, $relationCollection);
+        parent::__construct($tableGateway, $hydrator, $modelClass, $relationCollection);
     }
 }

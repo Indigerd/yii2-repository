@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Indigerd\Repository\Example\Domain\Relation;
+namespace Indigerd\Repository\Test\Fixture;
 
 use Indigerd\Repository\Relation\Relation;
-use Indigerd\Repository\Example\Domain\Model\ArticleCategory;
 
 class ArticleCategoryRelation extends Relation
 {

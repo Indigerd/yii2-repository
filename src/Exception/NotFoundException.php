@@ -2,6 +2,6 @@
 
 namespace Indigerd\Repository\Exception;
 
-class InvalidModelClassException extends \Exception
+class NotFoundException extends \Exception
 {
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Indigerd\Repository\Rest;
 
@@ -7,7 +7,7 @@ class Collection implements \IteratorAggregate
     /**
      * @var array
      */
-    protected $items= [];
+    protected $items = [];
 
     /**
      * @var int

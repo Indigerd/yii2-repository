@@ -1,29 +1,31 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Indigerd\Repository\Query;
+namespace Indigerd\Repository\TableGateway;
 
+use Indigerd\Repository\Query\SqlQueryFactory;
 use yii\db\Connection;
 use yii\db\Query;
-use yii\db\QueryInterface;
 use yii\db\Expression;
-use Indigerd\Repository\Config\ConfigValueInterface;
 use Indigerd\Repository\Exception\UpdateException;
 use Indigerd\Repository\Exception\DeleteException;
 use Indigerd\Repository\Relation\Relation;
 use yii\db\TableSchema;
 
-class SqlQueryBuilder extends AbstractQueryBuilder
+class SqlTableGateway implements TableGatewayInterface
 {
+    protected $connection;
+
+    protected $queryFactory;
+
+    protected $collectionName;
+
     protected $schemas = [];
 
-    public function __construct(Connection $connection, ConfigValueInterface $collectionName)
+    public function __construct(Connection $connection, SqlQueryFactory $queryFactory, string $collectionName)
     {
-        parent::__construct($connection, $collectionName);
-    }
-
-    protected function createQuery(): QueryInterface
-    {
-        return new Query();
+        $this->connection = $connection;
+        $this->queryFactory = $queryFactory;
+        $this->collectionName = $collectionName;
     }
 
     protected function getSchema($collectionName): TableSchema
@@ -50,7 +52,7 @@ class SqlQueryBuilder extends AbstractQueryBuilder
             }
         }
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         $query
             ->select(\implode(',', $select))
             ->from($this->collectionName)
@@ -76,7 +78,7 @@ class SqlQueryBuilder extends AbstractQueryBuilder
             }
         }
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         $query
             ->select(\implode(',', $select))
             ->from($this->collectionName)
@@ -147,7 +149,7 @@ class SqlQueryBuilder extends AbstractQueryBuilder
     public function aggregate(string $expression, array $conditions): string
     {
         /** @var Query $query */
-        $query = $this->createQuery();
+        $query = $this->queryFactory->create();
         return (string)$query
             ->select(new Expression($expression))
             ->from($this->collectionName)

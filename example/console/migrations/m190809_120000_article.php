@@ -21,6 +21,22 @@ class m190809_120000_article extends Migration
             'name' => $this->string()->notNull(),
         ]);
 
+        $this->insert('{{%article_categories}}', [
+            'id' => 1,
+            'name' => 'Category1'
+        ]);
+        $this->insert('{{%article_categories}}', [
+            'id' => 2,
+            'name' => 'Category2'
+        ]);
+        $this->insert('{{%articles}}', [
+            'category_id' => 1,
+            'title' => 'Article1'
+        ]);
+        $this->insert('{{%articles}}', [
+            'category_id' => 1,
+            'title' => 'Article2'
+        ]);
     }
 
     /**

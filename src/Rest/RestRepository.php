@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Indigerd\Repository\Rest;
 
 use GuzzleHttp\Client;
 use Indigerd\Hydrator\Hydrator;
-use Indigerd\Repository\Config\ConfigValueInterface;
 use Indigerd\Repository\Rest\Exception\ClientException;
 use Indigerd\Repository\Rest\Exception\ServerException;
 
@@ -28,16 +27,16 @@ class RestRepository
         Hydrator $hydrator,
         Hydrator $collectionHydrator,
         Client $client,
-        ConfigValueInterface $modelClass,
-        ConfigValueInterface $collectionClass,
-        ConfigValueInterface $endpoint
+        string $modelClass,
+        string $collectionClass,
+        string $endpoint
     ) {
         $this->hydrator = $hydrator;
         $this->collectionHydrator = $collectionHydrator;
         $this->client = $client;
-        $this->modelClass = $modelClass->getValue();
-        $this->collectionClass = $collectionClass->getValue();
-        $this->endpoint = $endpoint->getValue();
+        $this->modelClass = $modelClass;
+        $this->collectionClass = $collectionClass;
+        $this->endpoint = $endpoint;
     }
 
     public function findOne(string $id, string $token = ''): ?object
@@ -53,7 +52,10 @@ class RestRepository
         $url = \rtrim($this->endpoint, '/');
         $this->addToken($token);
         $response = $this->request('get', $url, $params);
-        return $this->collectionHydrator->hydrate($this->collectionClass, ['items' => $response['body']] + $this->generateHeaders($response['headers']));
+        return $this->collectionHydrator->hydrate(
+            $this->collectionClass,
+            ['items' => $response['body']] + $this->generateHeaders($response['headers'])
+        );
     }
 
     protected function addHeader(string $header, string $value)
@@ -114,8 +116,6 @@ class RestRepository
                 $headers[$value] = $response[$header];
             }
         }
-
         return $headers;
     }
-
 }
