@@ -77,7 +77,6 @@ class Repository implements RepositoryInterface
 
     public function findOne(array $conditions = [], array $with = []): object
     {
-        $result = null;
         $relations = [];
         foreach ($with as $relationName) {
             $relations[$relationName] = $this->getRelation($relationName);

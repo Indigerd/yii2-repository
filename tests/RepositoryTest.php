@@ -10,6 +10,7 @@ use Indigerd\Repository\TableGateway\SqlTableGateway;
 use Indigerd\Repository\Test\Fixture\Article;
 use Indigerd\Repository\Test\Fixture\ArticleCategoryRelation;
 use Indigerd\Repository\Test\Fixture\ArticleRelationCollection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class RepositoryTest extends TestCase
@@ -17,12 +18,15 @@ class RepositoryTest extends TestCase
     /** @var  Repository */
     protected $repository;
 
+    /** @var MockObject */
     protected $tableGateway;
 
+    /** @var MockObject */
     protected $hydrator;
 
     protected $modelClass = Article::class;
 
+    /** @var MockObject */
     protected $relationCollection;
 
     /** @var  Relation */
@@ -73,5 +77,32 @@ class RepositoryTest extends TestCase
             ->with($this->equalTo($expression), $this->equalTo($conditions))
             ->will($this->returnValue($aggrValue));
         $this->assertEquals($aggrValue, $this->repository->aggregate($expression, $conditions));
+    }
+
+    public function testFindOne()
+    {
+        $id = (string)1;
+        $title = 'Article title';
+        $article = new Article;
+        $article->setId($id);
+        $article->setTitle($title);
+        $data = [
+            'id' => $id,
+            'title' => $title
+        ];
+        $conditions = ['id' => $id];
+        $with = [];
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('queryOne')
+            ->with($this->equalTo($conditions), $this->equalTo($with))
+            ->will($this->returnValue($data));
+        $this->hydrator
+            ->expects($this->once())
+            ->method('hydrate')
+            ->with($this->equalTo($this->modelClass), $data)
+            ->will($this->returnValue($article));
+        $result = $this->repository->findOne($conditions, $with);
+        $this->assertEquals($article, $result);
     }
 }
