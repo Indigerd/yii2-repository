@@ -3,6 +3,7 @@
 namespace Indigerd\Repository\Test;
 
 use Indigerd\Hydrator\Hydrator;
+use Indigerd\Repository\Exception\NotFoundException;
 use Indigerd\Repository\Relation\Relation;
 use Indigerd\Repository\Relation\RelationCollection;
 use Indigerd\Repository\Repository;
@@ -104,5 +105,49 @@ class RepositoryTest extends TestCase
             ->will($this->returnValue($article));
         $result = $this->repository->findOne($conditions, $with);
         $this->assertEquals($article, $result);
+    }
+
+    public function testFindOneNotFoundException()
+    {
+        $this->expectException(NotFoundException::class);
+        $id = (string)2;
+        $conditions = ['id' => $id];
+        $with = [];
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('queryOne')
+            ->with($this->equalTo($conditions), $this->equalTo($with))
+            ->will($this->returnValue(null));
+        $this->repository->findOne($conditions, $with);
+    }
+
+    public function testCreate()
+    {
+        $title = 'New Article';
+        $data = ['title' => $title];
+        $article = new Article();
+        $article->setTitle($title);
+        $this->hydrator
+            ->expects($this->once())
+            ->method('hydrate')
+            ->with($this->equalTo($this->modelClass), $data)
+            ->will($this->returnValue($article));
+        $result = $this->repository->create($data);
+        $this->assertInstanceOf(Article::class, $result);
+        $this->assertEquals($title, $result->getTitle());
+    }
+
+    public function testPopulate()
+    {
+        $title = 'Title';
+        $newTitle = 'New title';
+        $data = ['title' => $newTitle];
+        $article = new Article();
+        $article->setTitle($title);
+        $this->hydrator
+            ->expects($this->once())
+            ->method('hydrate')
+            ->with($this->equalTo($article), $data);
+        $this->repository->populate($article, $data);
     }
 }

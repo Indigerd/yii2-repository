@@ -189,7 +189,7 @@ class Repository implements RepositoryInterface
      * @param array $data
      * @return object
      */
-    public function create(array $data= []): object
+    public function create(array $data = []): object
     {
         return $this->hydrator->hydrate($this->modelClass, $data);
     }
@@ -200,6 +200,6 @@ class Repository implements RepositoryInterface
      */
     public function populate(object $entity, array $data): void
     {
-        $this->hydrator->hydrate($this->modelClass, $data);
+        $this->hydrator->hydrate($entity, $data);
     }
 }

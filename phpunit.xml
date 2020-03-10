@@ -10,6 +10,11 @@
     <testsuites>
         <testsuite name="scenarios">
             <directory>./tests</directory>
+            <exclude>./src/TableGateway/SqlTableGateway.php</exclude>
+            <exclude>./src/TableGateway/MongoTableGateway.php</exclude>
+            <exclude>./src/DataProvider/DataProvider.php</exclude>
+            <exclude>./src/Rest/Collection.php</exclude>
+            <exclude>./src/Rest/RestRepository.php</exclude>
         </testsuite>
     </testsuites>
 
