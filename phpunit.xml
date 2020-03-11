@@ -10,17 +10,19 @@
     <testsuites>
         <testsuite name="scenarios">
             <directory>./tests</directory>
-            <exclude>./src/TableGateway/SqlTableGateway.php</exclude>
-            <exclude>./src/TableGateway/MongoTableGateway.php</exclude>
-            <exclude>./src/DataProvider/DataProvider.php</exclude>
-            <exclude>./src/Rest/Collection.php</exclude>
-            <exclude>./src/Rest/RestRepository.php</exclude>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./src</directory>
+            <exclude>
+                <file>./src/TableGateway/SqlTableGateway.php</file>
+                <file>./src/TableGateway/MongoTableGateway.php</file>
+                <file>./src/DataProvider/DataProvider.php</file>
+                <file>./src/Rest/Collection.php</file>
+                <file>./src/Rest/RestRepository.php</file>
+            </exclude>
         </whitelist>
     </filter>
 </phpunit>

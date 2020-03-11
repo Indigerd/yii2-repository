@@ -150,4 +150,161 @@ class RepositoryTest extends TestCase
             ->with($this->equalTo($article), $data);
         $this->repository->populate($article, $data);
     }
+
+    public function testDeleteAll()
+    {
+        $conditions = ['field' => 'value'];
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('deleteAll')
+            ->with($this->equalTo($conditions));
+        $this->repository->deleteAll($conditions);
+    }
+
+    public function testUpdateAll()
+    {
+        $data = ['field' => 'value'];
+        $conditions = ['condition' => 'value'];
+        $count = 10;
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('updateAll')
+            ->with($this->equalTo($data), $this->equalTo($conditions))
+            ->will($this->returnValue($count));
+        $result = $this->repository->updateAll($data, $conditions);
+        $this->assertEquals($count, $result);
+    }
+
+    public function testDelete()
+    {
+        $id = (string)1;
+        $model = new Article();
+        $model->setId($id);
+        $extract = ['id' => $id];
+        $this->hydrator
+            ->expects($this->once())
+            ->method('extract')
+            ->with($this->equalTo($model))
+            ->will($this->returnValue($extract));
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('deleteOne')
+            ->with($this->equalTo($extract));
+        $this->repository->delete($model);
+    }
+
+    public function testUpdate()
+    {
+        $id = (string)1;
+        $title = 'Article title';
+        $model = new Article();
+        $model->setId($id);
+        $model->setTitle($title);
+        $extract = ['id' => $id, 'title' => $title];
+        $this->hydrator
+            ->expects($this->once())
+            ->method('extract')
+            ->with($this->equalTo($model))
+            ->will($this->returnValue($extract));
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('updateOne')
+            ->with($this->equalTo($extract));
+        $this->repository->update($model);
+    }
+
+    public function testInsert()
+    {
+        $id = (string)1;
+        $title = 'Article title';
+        $model = new Article();
+        $model->setTitle($title);
+        $extract = ['title' => $title];
+        $keys = ['id' => $id];
+        $this->hydrator
+            ->expects($this->once())
+            ->method('extract')
+            ->with($this->equalTo($model))
+            ->will($this->returnValue($extract));
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('insert')
+            ->with($this->equalTo($extract))
+            ->will($this->returnValue($keys));
+        $this->hydrator
+            ->expects($this->once())
+            ->method('hydrate')
+            ->with($this->equalTo($model), $this->equalTo($keys));
+        $this->repository->insert($model);
+    }
+
+    public function testAggregateCount()
+    {
+        $aggregateValue = '1';
+        $field = 'field';
+        $conditions = ['condition' => 'value'];
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('aggregateCount')
+            ->with($this->equalTo($field), $this->equalTo($conditions))
+            ->will($this->returnValue($aggregateValue));
+        $result = $this->repository->aggregateCount($field, $conditions);
+        $this->assertEquals($aggregateValue, $result);
+    }
+
+    public function testAggregateSum()
+    {
+        $aggregateValue = '1';
+        $field = 'field';
+        $conditions = ['condition' => 'value'];
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('aggregateSum')
+            ->with($this->equalTo($field), $this->equalTo($conditions))
+            ->will($this->returnValue($aggregateValue));
+        $result = $this->repository->aggregateSum($field, $conditions);
+        $this->assertEquals($aggregateValue, $result);
+    }
+
+    public function testAggregateAverage()
+    {
+        $aggregateValue = '1';
+        $field = 'field';
+        $conditions = ['condition' => 'value'];
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('aggregateAverage')
+            ->with($this->equalTo($field), $this->equalTo($conditions))
+            ->will($this->returnValue($aggregateValue));
+        $result = $this->repository->aggregateAverage($field, $conditions);
+        $this->assertEquals($aggregateValue, $result);
+    }
+
+    public function testAggregateMin()
+    {
+        $aggregateValue = '1';
+        $field = 'field';
+        $conditions = ['condition' => 'value'];
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('aggregateMin')
+            ->with($this->equalTo($field), $this->equalTo($conditions))
+            ->will($this->returnValue($aggregateValue));
+        $result = $this->repository->aggregateMin($field, $conditions);
+        $this->assertEquals($aggregateValue, $result);
+    }
+
+    public function aggregateveMax()
+    {
+        $aggregateValue = '1';
+        $field = 'field';
+        $conditions = ['condition' => 'value'];
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('aggregateMax')
+            ->with($this->equalTo($field), $this->equalTo($conditions))
+            ->will($this->returnValue($aggregateValue));
+        $result = $this->repository->aggregateveMax($field, $conditions);
+        $this->assertEquals($aggregateValue, $result);
+    }
 }
