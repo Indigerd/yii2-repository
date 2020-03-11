@@ -20,8 +20,8 @@
                 <file>./src/TableGateway/SqlTableGateway.php</file>
                 <file>./src/TableGateway/MongoTableGateway.php</file>
                 <file>./src/DataProvider/DataProvider.php</file>
-                <file>./src/Rest/Collection.php</file>
-                <file>./src/Rest/RestRepository.php</file>
+                <directory>./src/Exception</directory>
+                <directory>./src/Rest</directory>
             </exclude>
         </whitelist>
     </filter>
