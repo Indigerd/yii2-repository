@@ -138,7 +138,7 @@ class Repository implements RepositoryInterface
         return $this->tableGateway->aggregateMin($field, $conditions);
     }
 
-    public function aggregateveMax(string $field, array $conditions): string
+    public function aggregateMax(string $field, array $conditions): string
     {
         return $this->tableGateway->aggregateMax($field, $conditions);
     }

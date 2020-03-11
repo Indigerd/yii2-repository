@@ -69,7 +69,7 @@ interface RepositoryInterface
      * @param array $conditions
      * @return string
      */
-    public function aggregateveMax(string $field, array $conditions): string;
+    public function aggregateMax(string $field, array $conditions): string;
 
     /**
      * @param array $data

@@ -3,6 +3,7 @@
 namespace Indigerd\Repository\Test;
 
 use Indigerd\Hydrator\Hydrator;
+use Indigerd\Repository\Exception\InvalidModelClassException;
 use Indigerd\Repository\Exception\NotFoundException;
 use Indigerd\Repository\Relation\Relation;
 use Indigerd\Repository\Relation\RelationCollection;
@@ -89,22 +90,65 @@ class RepositoryTest extends TestCase
         $article->setTitle($title);
         $data = [
             'id' => $id,
-            'title' => $title
+            'title' => $title,
+            'category' => []
         ];
         $conditions = ['id' => $id];
-        $with = [];
+        $with = ['category'];
+        $relations = ['category' => $this->articleRelation];
         $this->tableGateway
             ->expects($this->once())
             ->method('queryOne')
-            ->with($this->equalTo($conditions), $this->equalTo($with))
+            ->with($this->equalTo($conditions), $this->equalTo($relations))
             ->will($this->returnValue($data));
         $this->hydrator
             ->expects($this->once())
             ->method('hydrate')
             ->with($this->equalTo($this->modelClass), $data)
             ->will($this->returnValue($article));
+        $this->hydrator
+            ->expects($this->once())
+            ->method('addStrategy');
         $result = $this->repository->findOne($conditions, $with);
         $this->assertEquals($article, $result);
+    }
+
+    public function testFindAll()
+    {
+        $conditions = [];
+        $order = ['id' => 'desc'];
+        $limit = 20;
+        $offset = 0;
+        $with = [];
+        $relations = [];
+        $id = '1';
+        $title = 'Article title';
+        $resultSet = [
+            [
+                'id' => $id,
+                'title' => $title
+            ]
+        ];
+        $article = new Article();
+        $article->setId($id);
+        $article->setTitle($title);
+        $this->tableGateway
+            ->expects($this->once())
+            ->method('queryAll')
+            ->with(
+                $this->equalTo($conditions),
+                $this->equalTo($order),
+                $this->equalTo($limit),
+                $this->equalTo($offset),
+                $this->equalTo($relations)
+            )->will($this->returnValue($resultSet));
+        $this->hydrator
+            ->expects($this->once())
+            ->method('hydrate')
+            ->with($this->equalTo(Article::class), $this->equalTo($resultSet[0]))
+            ->will($this->returnValue($article));
+        $result = $this->repository->findAll($conditions, $order, $limit, $offset, $with);
+        $this->assertEquals([$article], $result);
     }
 
     public function testFindOneNotFoundException()
@@ -190,6 +234,13 @@ class RepositoryTest extends TestCase
             ->expects($this->once())
             ->method('deleteOne')
             ->with($this->equalTo($extract));
+        $this->repository->delete($model);
+    }
+
+    public function testValidateModelException()
+    {
+        $model = new \stdClass();
+        $this->expectException(InvalidModelClassException::class);
         $this->repository->delete($model);
     }
 
@@ -294,7 +345,7 @@ class RepositoryTest extends TestCase
         $this->assertEquals($aggregateValue, $result);
     }
 
-    public function aggregateveMax()
+    public function testAggregateMax()
     {
         $aggregateValue = '1';
         $field = 'field';
@@ -304,7 +355,7 @@ class RepositoryTest extends TestCase
             ->method('aggregateMax')
             ->with($this->equalTo($field), $this->equalTo($conditions))
             ->will($this->returnValue($aggregateValue));
-        $result = $this->repository->aggregateveMax($field, $conditions);
+        $result = $this->repository->aggregateMax($field, $conditions);
         $this->assertEquals($aggregateValue, $result);
     }
 }
