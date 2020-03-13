@@ -13,11 +13,19 @@ class DataProvider extends BaseDataProvider
 
     protected $with;
 
-    public function __construct(Repository $repository, array $conditions = [], $with = [], array $config = [])
-    {
+    protected $sortFields;
+
+    public function __construct(
+        Repository $repository,
+        array $conditions = [],
+        array $with = [],
+        array $sortFields = [],
+        array $config = []
+    ) {
         $this->repository = $repository;
         $this->conditions = $conditions;
         $this->with = $with;
+        $this->sortFields = $sortFields;
         parent::__construct($config);
     }
 
@@ -41,6 +49,12 @@ class DataProvider extends BaseDataProvider
             $offset = $pagination->getOffset();
         }
         if (($sort = $this->getSort()) !== false) {
+            foreach ($this->sortFields as $attribute) {
+                $sort->attributes[$attribute] = [
+                    'asc' => [$attribute => SORT_ASC],
+                    'desc' => [$attribute => SORT_DESC],
+                ];
+            }
             $orderBy = $sort->getOrders();
         }
 

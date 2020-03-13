@@ -41,6 +41,18 @@ class SqlTableGateway implements TableGatewayInterface
         return $this->getSchema($this->collectionName)->primaryKey;
     }
 
+    protected function normalizeFields(array $fields =[]): array
+    {
+        $result = [];
+        foreach ($fields as $name=>$value) {
+            if (\strpos($name, '.') === false) {
+                $name = $this->collectionName . '.' . $name;
+            }
+            $result[$name] = $value;
+        }
+        return $result;
+    }
+
     public function queryOne(array $conditions, array $relations = []): ?array
     {
         $select = [$this->collectionName . '.*'];
@@ -56,7 +68,7 @@ class SqlTableGateway implements TableGatewayInterface
         $query
             ->select(\implode(',', $select))
             ->from($this->collectionName)
-            ->where($conditions);
+            ->where($this->normalizeFields($conditions));
 
         foreach ($relations as $relation) {
             $joinCondition = $this->collectionName . '.' . $relation->getField() . '=' . $relation->getRelatedCollection() . '.' . $relation->getRelatedField();
@@ -82,14 +94,14 @@ class SqlTableGateway implements TableGatewayInterface
         $query
             ->select(\implode(',', $select))
             ->from($this->collectionName)
-            ->where($conditions);
+            ->where($this->normalizeFields($conditions));
 
         if ($limit > 0) {
             $query->limit($limit)->offset($offset);
         }
 
         if (!empty($order)) {
-            $query->orderBy($order);
+            $query->orderBy($this->normalizeFields($order));
         }
 
         foreach ($relations as $relation) {
