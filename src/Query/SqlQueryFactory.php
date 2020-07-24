@@ -6,6 +6,8 @@ use yii\db\Query;
 
 class SqlQueryFactory
 {
+    use ConditionFactory;
+
     public function create(): Query
     {
         return new Query();

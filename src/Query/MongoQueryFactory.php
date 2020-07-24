@@ -6,6 +6,8 @@ use yii\mongodb\Query;
 
 class MongoQueryFactory
 {
+    use ConditionFactory;
+
     public function create(): Query
     {
         return new Query();
