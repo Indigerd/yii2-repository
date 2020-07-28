@@ -40,8 +40,8 @@ class MongoTableGateway implements TableGatewayInterface
         $data['_id'] = new ObjectId();
         /** @var \yii\mongodb\Connection $connection */
         $connection = $this->connection;
-        $newId = $connection->getCollection($this->collectionName)->insert($data);
-        return ['_id' => $newId];
+        $connection->getCollection($this->collectionName)->insert($data);
+        return ['_id' => $data['_id']];
     }
 
     public function updateOne(array $data): void
@@ -53,7 +53,6 @@ class MongoTableGateway implements TableGatewayInterface
         unset($data['_id']);
         $this->updateAll($data, $conditions);
     }
-
 
     public function updateAll(array $data, array $conditions): int
     {
