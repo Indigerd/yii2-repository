@@ -85,7 +85,7 @@ class RestRepository
      * @param string $token
      * @return Collection
      */
-    public function findAll(array $params = [], string $token = ''): Collection
+    public function findAll(array $params = [], string $token = '')
     {
         $url = \rtrim($this->endpoint, '/');
         $this->addToken($token);
