@@ -5,20 +5,16 @@ namespace Indigerd\Repository\Rest;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use Indigerd\Hydrator\Hydrator;
+use Indigerd\Repository\RepositoryInterface;
 use Indigerd\Repository\Rest\Exception\ClientException;
 use Indigerd\Repository\Rest\Exception\ServerException;
 
-class RestRepository
+class RestRepository implements RepositoryInterface
 {
     /**
      * @var Hydrator
      */
     protected $hydrator;
-
-    /**
-     * @var Hydrator
-     */
-    protected $collectionHydrator;
 
     /**
      * @var Client
@@ -30,11 +26,6 @@ class RestRepository
      */
     protected $modelClass;
 
-    /**
-     * @var string
-     */
-    protected $collectionClass;
-
     protected $endpoint;
 
     /**
@@ -45,7 +36,6 @@ class RestRepository
     /**
      * RestRepository constructor.
      * @param Hydrator $hydrator
-     * @param Hydrator $collectionHydrator
      * @param Client $client
      * @param string $modelClass
      * @param string $collectionClass
@@ -53,48 +43,161 @@ class RestRepository
      */
     public function __construct(
         Hydrator $hydrator,
-        Hydrator $collectionHydrator,
         Client $client,
         string $modelClass,
-        string $collectionClass,
         string $endpoint
     ) {
         $this->hydrator = $hydrator;
-        $this->collectionHydrator = $collectionHydrator;
         $this->client = $client;
         $this->modelClass = $modelClass;
-        $this->collectionClass = $collectionClass;
         $this->endpoint = $endpoint;
     }
 
-    /**
-     * @param string $id
-     * @param string $token
-     * @return object|null
-     */
-    public function findOne(string $id, string $token = ''): ?object
+    public function findOne(array $conditions = [], array $with = []): object
     {
-        $url = \rtrim($this->endpoint, '/') . '/' . $id;
-        $this->addToken($token);
+        if (!isset($conditions['id'])) {
+            throw new \InvalidArgumentException('No id provided');
+        }
+        $url = \rtrim($this->endpoint, '/') . '/' . $conditions['id'];
         $response = $this->request('get', $url);
         return $this->hydrator->hydrate($this->modelClass, $response['body']);
     }
 
-    /**
-     * @param array $params
-     * @param string $token
-     * @return Collection
-     */
-    public function findAll(array $params = [], string $token = '')
-    {
+    public function findAll(
+        array $conditions = [],
+        array $order = [],
+        int $limit = 0,
+        int $offset = 0,
+        array $with = []
+    ): array {
         $url = \rtrim($this->endpoint, '/');
-        $this->addToken($token);
-        $response = $this->request('get', $url, $params);
+        $response = $this->request('get', $url, $conditions);
+        $result = [];
+        foreach ($response['body'] as $item) {
+            $result[] = $this->hydrator->hydrate($this->modelClass, $item);
+        }
+        return $result;
+    }
 
-        return $this->collectionHydrator->hydrate(
-            $this->collectionClass,
-            ['items' => $response['body']] + $this->generateHeaders($response['headers'])
-        );
+    /**
+     * @param string $expression
+     * @param array $conditions
+     * @return string
+     */
+    public function aggregate(string $expression, array $conditions): string
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param string $field
+     * @param array $conditions
+     * @return string
+     */
+    public function aggregateCount(string $field = '', array $conditions = []): string
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param string $field
+     * @param array $conditions
+     * @return string
+     */
+    public function aggregateSum(string $field, array $conditions): string
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param string $field
+     * @param array $conditions
+     * @return string
+     */
+    public function aggregateAverage(string $field, array $conditions): string
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param string $field
+     * @param array $conditions
+     * @return string
+     */
+    public function aggregateMin(string $field, array $conditions): string
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param string $field
+     * @param array $conditions
+     * @return string
+     */
+    public function aggregateMax(string $field, array $conditions): string
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param array $data
+     * @return object
+     */
+    public function create(array $data= []): object
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param object $entity
+     * @param array $data
+     */
+    public function populate(object $entity, array $data): void
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param object $entity
+     */
+    public function insert(object $entity): void
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param object $entity
+     */
+    public function update(object $entity): void
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param object $entity
+     */
+    public function delete(object $entity): void
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param array $data
+     * @param array $conditions
+     * @return int
+     */
+    public function updateAll(array $data, array $conditions): int
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @param array $conditions
+     * @return int
+     */
+    public function deleteAll(array $conditions): int
+    {
+        throw new \RuntimeException('Not implemented');
     }
 
     /**
@@ -102,7 +205,7 @@ class RestRepository
      * @param string $value
      * @return $this
      */
-    protected function addHeader(string $header, string $value)
+    public function addHeader(string $header, string $value)
     {
         $this->headers[$header] = $value;
         return $this;
@@ -111,7 +214,7 @@ class RestRepository
     /**
      * @param string $token
      */
-    protected function addToken(string $token)
+    public function addToken(string $token)
     {
         if (!empty($token)) {
             $this->addHeader('Authorization', $token);
