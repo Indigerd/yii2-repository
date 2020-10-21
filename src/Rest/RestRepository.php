@@ -4,6 +4,7 @@ namespace Indigerd\Repository\Rest;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\RequestOptions;
 use Indigerd\Hydrator\Hydrator;
 use Indigerd\Repository\RepositoryInterface;
 use Indigerd\Repository\Rest\Exception\ClientException;
@@ -71,7 +72,7 @@ class RestRepository implements RepositoryInterface
         array $with = []
     ): array {
         $url = \rtrim($this->endpoint, '/');
-        $response = $this->request('get', $url, $conditions);
+        $response = $this->request('get', $url, [RequestOptions::QUERY => $conditions]);
         $result = [];
         foreach ($response['body'] as $item) {
             $result[] = $this->hydrator->hydrate($this->modelClass, $item);
