@@ -2,7 +2,7 @@
 
 namespace Indigerd\Repository\DataProvider;
 
-use Indigerd\Repository\Repository;
+use Indigerd\Repository\RepositoryInterface;
 use yii\data\BaseDataProvider;
 
 class DataProvider extends BaseDataProvider
@@ -16,7 +16,7 @@ class DataProvider extends BaseDataProvider
     protected $sortFields;
 
     public function __construct(
-        Repository $repository,
+        RepositoryInterface $repository,
         array $conditions = [],
         array $with = [],
         array $sortFields = [],
