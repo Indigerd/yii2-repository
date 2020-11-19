@@ -3,6 +3,7 @@
 namespace Indigerd\Repository\TableGateway;
 
 use Indigerd\Repository\Query\SqlQueryFactory;
+use Indigerd\Repository\TableGateway\ConditionBuilder\SqlConditionBuilder;
 use yii\db\Connection;
 use yii\db\Query;
 use yii\db\Expression;
@@ -17,14 +18,21 @@ class SqlTableGateway implements TableGatewayInterface
 
     protected $queryFactory;
 
+    protected $conditionBuilder;
+
     protected $collectionName;
 
     protected $schemas = [];
 
-    public function __construct(Connection $connection, SqlQueryFactory $queryFactory, string $collectionName)
-    {
+    public function __construct(
+        Connection $connection,
+        SqlQueryFactory $queryFactory,
+        SqlConditionBuilder $conditionBuilder,
+        string $collectionName
+    ) {
         $this->connection = $connection;
         $this->queryFactory = $queryFactory;
+        $this->conditionBuilder = $conditionBuilder;
         $this->collectionName = $collectionName;
     }
 
@@ -63,12 +71,13 @@ class SqlTableGateway implements TableGatewayInterface
                 $select[] = $relation->getRelatedCollection() . '.' . $column . ' as ' . $relation->getRelatedCollection() . '_relation_' . $column;
             }
         }
+        $conditions = $this->conditionBuilder->build($this->normalizeFields($conditions));
         /** @var Query $query */
         $query = $this->queryFactory->create();
         $query
             ->select(\implode(',', $select))
             ->from($this->collectionName)
-            ->where($this->normalizeFields($conditions));
+            ->where($conditions);
 
         foreach ($relations as $relation) {
             $joinCondition = $this->collectionName . '.' . $relation->getField() . '=' . $relation->getRelatedCollection() . '.' . $relation->getRelatedField();
@@ -89,12 +98,13 @@ class SqlTableGateway implements TableGatewayInterface
                 $select[] = $relation->getRelatedCollection() . '.' . $column . ' as ' . $relation->getRelatedCollection() . '_relation_' . $column;
             }
         }
+        $conditions = $this->conditionBuilder->build($this->normalizeFields($conditions));
         /** @var Query $query */
         $query = $this->queryFactory->create();
         $query
             ->select(\implode(',', $select))
             ->from($this->collectionName)
-            ->where($this->normalizeFields($conditions));
+            ->where($conditions);
 
         if ($limit > 0) {
             $query->limit($limit)->offset($offset);
@@ -134,6 +144,7 @@ class SqlTableGateway implements TableGatewayInterface
     public function updateAll(array $data, array $conditions): int
     {
         $command = $this->connection->createCommand();
+        $conditions = $this->conditionBuilder->build($conditions);
         $command->update($this->collectionName, $data, $conditions);
         return $command->execute();
     }
@@ -154,12 +165,14 @@ class SqlTableGateway implements TableGatewayInterface
     public function deleteAll(array $conditions): int
     {
         $command = $this->connection->createCommand();
+        $conditions = $this->conditionBuilder->build($conditions);
         $command->delete($this->collectionName, $conditions);
         return $command->execute();
     }
 
     public function aggregate(string $expression, array $conditions): string
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         return (string)$query

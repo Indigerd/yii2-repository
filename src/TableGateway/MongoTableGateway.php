@@ -3,6 +3,7 @@
 namespace Indigerd\Repository\TableGateway;
 
 use Indigerd\Repository\Query\MongoQueryFactory;
+use Indigerd\Repository\TableGateway\ConditionBuilder\ConditionBuilder;
 use MongoDB\BSON\ObjectId;
 use yii\mongodb\Connection;
 use yii\mongodb\Query;
@@ -15,17 +16,25 @@ class MongoTableGateway implements TableGatewayInterface
 
     protected $queryFactory;
 
+    protected $conditionBuilder;
+
     protected $collectionName;
 
-    public function __construct(Connection $connection, MongoQueryFactory $queryFactory, string $collectionName)
-    {
+    public function __construct(
+        Connection $connection,
+        MongoQueryFactory $queryFactory,
+        ConditionBuilder $conditionBuilder,
+        string $collectionName
+    ) {
         $this->connection = $connection;
         $this->queryFactory = $queryFactory;
+        $this->conditionBuilder = $conditionBuilder;
         $this->collectionName = $collectionName;
     }
 
     public function queryOne(array $conditions, array $relations = []): ?array
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         $query
@@ -56,6 +65,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function updateAll(array $data, array $conditions): int
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var \yii\mongodb\Connection $connection */
         $connection = $this->connection;
         return $connection->getCollection($this->collectionName)->update($conditions, $data);
@@ -73,6 +83,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function deleteAll(array $conditions): int
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var \yii\mongodb\Connection $connection */
         $connection = $this->connection;
         return $connection->getCollection($this->collectionName)->remove($conditions);
@@ -80,6 +91,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function queryAll(array $conditions, array $order = [], int $limit = 0, int $offset = 0, array $relations = []): array
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         $query
@@ -99,6 +111,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function aggregate(string $expression, array $conditions): string
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->select($expression)->where($conditions)->scalar($this->connection);
@@ -106,6 +119,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function aggregateCount(string $field = '', array $conditions = []): string
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->count('*', $this->connection);
@@ -113,6 +127,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function aggregateSum(string $field, array $conditions = []): string
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->sum($field, $this->connection);
@@ -120,6 +135,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function aggregateAverage(string $field, array $conditions = []): string
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->average($field, $this->connection);
@@ -127,6 +143,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function aggregateMin(string $field, array $conditions = []): string
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->min($field, $this->connection);
@@ -134,6 +151,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function aggregateMax(string $field, array $conditions = []): string
     {
+        $conditions = $this->conditionBuilder->build($conditions);
         /** @var Query $query */
         $query = $this->queryFactory->create();
         return (string)$query->from($this->collectionName)->where($conditions)->max($field, $this->connection);
