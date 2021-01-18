@@ -21,7 +21,8 @@
     "indigerd/hydrator": "*",
     "yiisoft/yii2": "^2.0.13",
     "yiisoft/yii2-mongodb": "^2.1",
-    "guzzlehttp/guzzle": "~6.0"
+    "guzzlehttp/guzzle": "~6.0",
+    "yiisoft/yii2-elasticsearch": "2.1.0"
   },
   "require-dev": {
     "phpunit/phpunit": "@stable"
