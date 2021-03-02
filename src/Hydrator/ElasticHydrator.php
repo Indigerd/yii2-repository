@@ -20,7 +20,7 @@ class ElasticHydrator extends Hydrator
             $entityData['id'] = (string)$data['_id'];
         }
 
-        $entityData += $data['_source'];
+        $entityData += $data['_source'] ?? [];
 
         return parent::hydrate($target, $entityData);
     }
