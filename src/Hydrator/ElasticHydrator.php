@@ -15,14 +15,18 @@ class ElasticHydrator extends Hydrator
      */
     public function hydrate($target, array $data): object
     {
-        $entityData = [];
+        unset($data['_index'], $data['_type'], $data['_score']);
         if (isset($data['_id'])) {
-            $entityData['id'] = (string)$data['_id'];
+            $data['id'] = (string)$data['_id'];
+            unset($data['_id']);
         }
 
-        $entityData += $data['_source'] ?? [];
+        if (isset($data['_source'])) {
+            $data += $data['_source'];
+            unset($data['_source']);
+        }
 
-        return parent::hydrate($target, $entityData);
+        return parent::hydrate($target, $data);
     }
 
     /**
