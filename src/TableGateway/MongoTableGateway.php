@@ -46,7 +46,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function insert(array $data): ?array
     {
-        $data['_id'] = new ObjectId();
+        $data['_id'] = new ObjectId($data['_id'] ?? null);
         /** @var \yii\mongodb\Connection $connection */
         $connection = $this->connection;
         $connection->getCollection($this->collectionName)->insert($data);
