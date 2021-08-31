@@ -51,11 +51,16 @@ class ElasticTableGateway implements TableGatewayInterface
     {
         /** @var \yii\elasticsearch\Connection $connection */
         $connection = $this->connection;
+
+        if (\array_key_exists('_id', $data)) {
+            $id = $data['_id'];
+            unset($data['_id']);
+        }
         $result = $connection->createCommand()->insert(
             $this->collectionName,
             $this->documentType,
             $data,
-            (isset($data['_id']) ? $data['_id'] : null),
+            (isset($id) ? $id : null),
             $options
         );
         return ['_id' => $result['_id']];
