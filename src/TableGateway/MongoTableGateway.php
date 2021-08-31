@@ -34,14 +34,8 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function queryOne(array $conditions, array $relations = []): ?array
     {
-        $conditions = $this->conditionBuilder->build($conditions);
-        /** @var Query $query */
-        $query = $this->queryFactory->create();
-        $query
-            ->from($this->collectionName)
-            ->where($conditions);
-        $result = $query->one($this->connection);
-        return $result ? $result : null;
+        $result = $this->queryAll($conditions, [], 1);
+        return \array_shift($result);
     }
 
     public function insert(array $data): ?array
