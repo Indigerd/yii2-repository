@@ -141,7 +141,7 @@ class SqlTableGateway implements TableGatewayInterface
         $this->updateAll($data, $conditions);
     }
 
-    public function updateAll(array $data, array $conditions): int
+    public function updateAll(array $data, array $conditions, array $options = []): int
     {
         $command = $this->connection->createCommand();
         $conditions = $this->conditionBuilder->build($conditions);

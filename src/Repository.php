@@ -175,9 +175,9 @@ class Repository implements RepositoryInterface
         $this->tableGateway->deleteOne($data);
     }
 
-    public function updateAll(array $data, array $conditions): int
+    public function updateAll(array $data, array $conditions, array $options = []): int
     {
-        return $this->tableGateway->updateAll($data, $conditions);
+        return $this->tableGateway->updateAll($data, $conditions, $options);
     }
 
     public function deleteAll(array $conditions): int

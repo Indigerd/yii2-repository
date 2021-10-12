@@ -17,7 +17,7 @@ interface TableGatewayInterface
 
     public function deleteOne(array $data): void;
 
-    public function updateAll(array $data, array $conditions): int;
+    public function updateAll(array $data, array $conditions, array $options = []): int;
 
     public function deleteAll(array $conditions): int;
 
