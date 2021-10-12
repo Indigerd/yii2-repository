@@ -101,9 +101,10 @@ interface RepositoryInterface
     /**
      * @param array $data
      * @param array $conditions
+     * @param array $options
      * @return int
      */
-    public function updateAll(array $data, array $conditions): int;
+    public function updateAll(array $data, array $conditions, array $options = []): int;
 
     /**
      * @param array $conditions

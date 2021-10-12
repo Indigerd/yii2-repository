@@ -57,12 +57,12 @@ class MongoTableGateway implements TableGatewayInterface
         $this->updateAll($data, $conditions);
     }
 
-    public function updateAll(array $data, array $conditions): int
+    public function updateAll(array $data, array $conditions, array $options = []): int
     {
         $conditions = $this->conditionBuilder->build($conditions);
         /** @var \yii\mongodb\Connection $connection */
         $connection = $this->connection;
-        return $connection->getCollection($this->collectionName)->update($conditions, $data);
+        return $connection->getCollection($this->collectionName)->update($conditions, $data, $options);
     }
 
     public function deleteOne(array $data): void

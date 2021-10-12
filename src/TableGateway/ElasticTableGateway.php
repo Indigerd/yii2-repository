@@ -82,7 +82,7 @@ class ElasticTableGateway implements TableGatewayInterface
         );
     }
 
-    public function updateAll(array $data, array $conditions): int
+    public function updateAll(array $data, array $conditions, array $options = []): int
     {
         throw new \RuntimeException('Not implemented');
     }

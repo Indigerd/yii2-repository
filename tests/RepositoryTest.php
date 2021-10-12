@@ -209,13 +209,14 @@ class RepositoryTest extends TestCase
     {
         $data = ['field' => 'value'];
         $conditions = ['condition' => 'value'];
+        $options = ['option' => 'value'];
         $count = 10;
         $this->tableGateway
             ->expects($this->once())
             ->method('updateAll')
-            ->with($this->equalTo($data), $this->equalTo($conditions))
+            ->with($this->equalTo($data), $this->equalTo($conditions), $this->equalTo($options))
             ->will($this->returnValue($count));
-        $result = $this->repository->updateAll($data, $conditions);
+        $result = $this->repository->updateAll($data, $conditions, $options);
         $this->assertEquals($count, $result);
     }
 
