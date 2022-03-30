@@ -35,6 +35,11 @@ class RestRepository implements RepositoryInterface
     protected $headers;
 
     /**
+     * @var string
+     */
+    protected $uniqidPrefix;
+
+    /**
      * RestRepository constructor.
      * @param Hydrator $hydrator
      * @param Client $client
@@ -46,12 +51,14 @@ class RestRepository implements RepositoryInterface
         Hydrator $hydrator,
         Client $client,
         string $modelClass,
-        string $endpoint
+        string $endpoint,
+        string $uniqidPrefix = ''
     ) {
         $this->hydrator = $hydrator;
         $this->client = $client;
         $this->modelClass = $modelClass;
         $this->endpoint = $endpoint;
+        $this->uniqidPrefix = $uniqidPrefix;
     }
 
     public function findOne(array $conditions = [], array $with = []): object
@@ -232,6 +239,7 @@ class RestRepository implements RepositoryInterface
     protected function request(string $method, string $url, array $params = []): array
     {
         $this->addHeader('Accept', 'application/json');
+        $this->addXRequestIdHeader();
         $params['headers'] = $this->headers;
 
         try {
@@ -262,14 +270,7 @@ class RestRepository implements RepositoryInterface
      */
     private function formatResponseExceptionMessage(BadResponseException $e): string
     {
-        $message = \sprintf(
-            'Service responded with error (%s - %s).',
-            $e->getResponse()->getStatusCode(),
-            $e->getResponse()->getReasonPhrase()
-        );
-        $message .= "\n" . $e->getResponse()->getBody()->getContents();
-
-        return $message;
+        return $e->getResponse()->getBody()->getContents();
     }
     
      /**
@@ -285,5 +286,12 @@ class RestRepository implements RepositoryInterface
             }
         }
         return $headers;
+    }
+
+    private function addXRequestIdHeader(): void
+    {
+        if (!array_key_exists('X-Request-Id',$this->headers)) {
+            $this->addHeader('X-Request-Id', uniqid($this->uniqidPrefix, true));
+        }
     }
 }
