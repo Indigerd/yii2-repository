@@ -37,5 +37,10 @@
       "Indigerd\\Repository\\Test\\": "tests",
       "Indigerd\\Repository\\Example\\": "example"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true
+    }
   }
 }
