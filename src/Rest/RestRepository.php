@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Indigerd\Repository\Rest;
 
@@ -151,7 +153,7 @@ class RestRepository implements RepositoryInterface
      * @param array $data
      * @return object
      */
-    public function create(array $data= []): object
+    public function create(array $data = []): object
     {
         throw new \RuntimeException('Not implemented');
     }
@@ -236,7 +238,7 @@ class RestRepository implements RepositoryInterface
      * @param array $params
      * @return array
      */
-    protected function request(string $method, string $url, array $params = []): array
+    protected function request(string $method, string $url, array $params = [], bool $decode = true): array
     {
         $this->addHeader('Accept', 'application/json');
         $this->addXRequestIdHeader();
@@ -256,7 +258,9 @@ class RestRepository implements RepositoryInterface
             throw new ServerException($message, $e->getCode());
         }
 
-        $data = \json_decode($userRequest->getBody()->getContents(), true);
+        $data = $decode
+            ? \json_decode($userRequest->getBody()->getContents(), true)
+            : $userRequest->getBody()->getContents();
 
         return [
             'headers' => $userRequest->getHeaders(),
@@ -272,8 +276,8 @@ class RestRepository implements RepositoryInterface
     {
         return $e->getResponse()->getBody()->getContents();
     }
-    
-     /**
+
+    /**
      * @param array $response
      * @return array
      */
@@ -290,7 +294,7 @@ class RestRepository implements RepositoryInterface
 
     private function addXRequestIdHeader(): void
     {
-        if (!array_key_exists('X-Request-Id',$this->headers)) {
+        if (!array_key_exists('X-Request-Id', $this->headers)) {
             $this->addHeader('X-Request-Id', uniqid($this->uniqidPrefix, true));
         }
     }
