@@ -40,7 +40,7 @@ class MongoTableGateway implements TableGatewayInterface
 
     public function insert(array $data): ?array
     {
-        if (!isset($data['_id'])) {
+        if (empty($data['_id'])) {
             $data['_id'] = new ObjectId();
         } elseif ($this->isObjectId($data['_id'])) {
             $data['_id'] = new ObjectId($data['_id']);
