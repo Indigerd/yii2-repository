@@ -60,7 +60,7 @@ class ElasticTableGateway implements TableGatewayInterface
             $this->collectionName,
             $this->documentType,
             $data,
-            (isset($id) ? $id : null),
+            (!empty($id) ? $id : null),
             $options
         );
         return ['_id' => $result['_id']];
